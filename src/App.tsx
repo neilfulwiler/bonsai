@@ -1,28 +1,20 @@
 import React, {useState} from 'react';
 import moment, {Moment} from 'moment';
+import {useDispatch, useSelector} from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import classNames from 'classnames'; 
-import './App.css';
+import {Meeting as MeetingType,Note} from './types';
+import {State} from './redux/reducers';
+import {updateMeeting} from './redux/actions';
+import './App.css'
 
-
-interface Note {
-  date: Moment,
-  content: string[],
-}
-
-interface Meeting {
-  name: string,
-  asksForYou: string[],
-  asksForThem: string[],
-  notes: Note[],
-}
 
 const Sidebar: React.FC<{}> = ({ children }) => {
   return <div className="sidebar">{children}</div>;
 }
-
-const MeetingSelector: React.FC<{meetings: Meeting[], selected: number, onSelect: (idx: number) => void}> = ({ meetings, selected, onSelect }) => {
+  
+const MeetingSelector: React.FC<{meetings: MeetingType[], selected: number, onSelect: (idx: number) => void}> = ({ meetings, selected, onSelect }) => {
   return (
     <ul className="meetings-selector">
       {meetings.map((meeting, idx) => (
@@ -66,7 +58,7 @@ const MeetingList: React.FC<{onAdd?: (s: string) => void, placeholder?: string}>
   );
 }
 
-const Meeting: React.FC<{meeting: Meeting, onUpdate: (meeting: Meeting) => void}> = ({ meeting, onUpdate }) => {
+const Meeting: React.FC<{meeting: MeetingType, onUpdate: (meeting: MeetingType) => void}> = ({ meeting, onUpdate }) => {
   const {name, asksForYou, asksForThem, notes} = meeting;
   return (
     <div className="meeting">
@@ -119,15 +111,8 @@ const Meeting: React.FC<{meeting: Meeting, onUpdate: (meeting: Meeting) => void}
 }
 
 const App: React.FC<{}> = () => {
-  const initialMeetings = [
-    { name: "Alice", asksForYou: ["take out the trash", "buy groceries"], asksForThem: ["read a book", "draw a picture"], 
-    notes: [{date: moment("2019-11-19", 'YYYY-MM-DD'), content: ["went for a walk", "looked up a definition"]}] }, 
-    { name: "Bob", asksForYou: ["be nice", "come up with a plan"], asksForThem: ["write a song", "learn the guitar"],
-    notes: [{date: moment("2019-11-17", 'YYYY-MM-DD'), content: ["played the piano", "practiced the guiater"]}] }, 
-    { name: "Charlie", asksForYou: ["learn how to drive", "climb a mountain"], asksForThem: ["retake the exam", "go shopping"],
-    notes: [{date: moment("2019-10-10", 'YYYY-MM-DD'), content: ["talked about the future", "did the laundry"]}] }, 
-  ];
-  const [meetings, setMeetings] = useState(initialMeetings);
+  const meetings = useSelector<State, MeetingType[]>(state => state.meetings);
+  const dispatch = useDispatch();
   const [meetingIdx, setMeetingIdx] = useState(0);
   return (
     <div className="App">
@@ -141,13 +126,7 @@ const App: React.FC<{}> = () => {
       <Meeting 
         meeting={meetings[meetingIdx]} 
         onUpdate={(updatedMeeting) => {
-          const idx = meetings.indexOf(meetings[meetingIdx]);
-          console.log(`updating meeting ${idx}`);
-          setMeetings(
-            meetings.slice(0, idx).concat(updatedMeeting).concat(
-              meetings.slice(idx + 1, meetings.length)
-            )
-          )
+          dispatch(updateMeeting(updatedMeeting));
         }}
       />
     </div>
