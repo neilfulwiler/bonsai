@@ -7,6 +7,8 @@ export interface Note {
 }
 
 export interface Meeting {
+  id: string,
+  uid: string,
   name: string,
   asksForYou: string[],
   asksForThem: string[],

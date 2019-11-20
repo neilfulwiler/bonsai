@@ -1,65 +1,68 @@
-import React, {useState} from 'react';
-import moment, {Moment} from 'moment';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
-import classNames from 'classnames'; 
-import {Meeting as MeetingType,Note} from './types';
-import {State} from './redux/reducers';
-import {updateMeeting} from './redux/actions';
-import './App.css'
+import classNames from 'classnames';
+import { Meeting as MeetingType, Note } from './types';
+import { State } from './redux/reducers';
+import { updateMeeting } from './redux/actions';
+import './App.css';
 
 
-const Sidebar: React.FC<{}> = ({ children }) => {
-  return <div className="sidebar">{children}</div>;
-}
-  
-const MeetingSelector: React.FC<{meetings: MeetingType[], selected: number, onSelect: (idx: number) => void}> = ({ meetings, selected, onSelect }) => {
-  return (
-    <ul className="meetings-selector">
-      {meetings.map((meeting, idx) => (
-        <li className={classNames({active: idx === selected})} key={meeting.name} onClick={() => onSelect(idx)}>{meeting.name}</li>
-      ))}
-    </ul>
-  );
-}
+const Sidebar: React.FC<{}> = ({ children }) => <div className="sidebar">{children}</div>;
+
+const MeetingSelector: React.FC<{meetings: MeetingType[], selected: number, onSelect: (idx: number) => void}> = ({ meetings, selected, onSelect }) => (
+  <ul className="meetings-selector">
+    {meetings.map((meeting, idx) => (
+      <li className={classNames({ active: idx === selected })} key={meeting.name} onClick={() => onSelect(idx)}>{meeting.name}</li>
+    ))}
+  </ul>
+);
 
 const MeetingList: React.FC<{onAdd?: (s: string) => void, placeholder?: string}> = ({ onAdd, placeholder, children }) => {
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   return (
     <ul className="meeting-list">
       {children}
-      {(onAdd && !editing) &&
+      {(onAdd && !editing)
+        && (
         <li>
           <IconButton className="meeting-list-add" size="small" onClick={() => setEditing(true)}>
             <AddIcon />
           </IconButton>
         </li>
-      }
-      {onAdd && editing &&
+        )}
+      {onAdd && editing
+        && (
         <li>
           <input
             className="meeting-list-input"
             value={value}
-            onChange={e => setValue(e.target.value)}
+            onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
-            onKeyDown={e => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 onAdd(value);
                 setEditing(false);
-                setValue("");
+                setValue('');
               }
             }}
-            />
+          />
         </li>
-      }
+        )}
     </ul>
   );
+};
+
+function replaceIdx<T>(ls: T[], idx: number, t: T): T[] {
+  return ls.splice(0, idx).concat([t]).concat(ls.splice(idx + 1, ls.length));
 }
 
 const Meeting: React.FC<{meeting: MeetingType, onUpdate: (meeting: MeetingType) => void}> = ({ meeting, onUpdate }) => {
-  const {name, asksForYou, asksForThem, notes} = meeting;
+  const {
+    name, asksForYou, asksForThem, notes,
+  } = meeting;
   return (
     <div className="meeting">
       <h1>{name}</h1>
@@ -74,8 +77,8 @@ const Meeting: React.FC<{meeting: MeetingType, onUpdate: (meeting: MeetingType) 
                   asksForYou: [
                     ...asksForYou,
                     ask,
-                  ]
-                })
+                  ],
+                });
               }}
             >
               {asksForYou.map((ask, idx) => <li key={idx}>{ask}</li>)}
@@ -83,7 +86,17 @@ const Meeting: React.FC<{meeting: MeetingType, onUpdate: (meeting: MeetingType) 
           </div>
           <div className="asks-for-them">
             <h3>Asks For Them</h3>
-            <MeetingList>
+            <MeetingList
+              onAdd={(ask) => {
+                onUpdate({
+                  ...meeting,
+                  asksForThem: [
+                    ...asksForThem,
+                    ask,
+                  ],
+                });
+              }}
+            >
               {asksForThem.map((ask, idx) => <li key={idx}>{ask}</li>)}
             </MeetingList>
           </div>
@@ -92,26 +105,31 @@ const Meeting: React.FC<{meeting: MeetingType, onUpdate: (meeting: MeetingType) 
           <div className="notes">
             <h3>Notes</h3>
             <MeetingList>
-              {notes.map(({date, content}, idx) => {
-                return (
-                  <li key={idx}>
-                    <h4>{date.format('MMM DD')}</h4>
-                    <MeetingList>
-                      {content.map((note, idx) => <li key={idx}>{note}</li>)}
-                    </MeetingList>
-                  </li>
-                );
-              })}
+              {notes.map(({ date, content }, idx) => (
+                <li key={idx}>
+                  <h4>{date.format('MMM DD')}</h4>
+                  <MeetingList
+                    onAdd={(note) => {
+                      onUpdate({
+                        ...meeting,
+                        notes: replaceIdx(notes, idx, { date, content: content.concat([note]) }),
+                      });
+                    }}
+                  >
+                    {content.map((note, idx) => <li key={idx}>{note}</li>)}
+                  </MeetingList>
+                </li>
+              ))}
             </MeetingList>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 const App: React.FC<{}> = () => {
-  const meetings = useSelector<State, MeetingType[]>(state => state.meetings);
+  const meetings = useSelector<State, MeetingType[]>((state) => state.meetings);
   const dispatch = useDispatch();
   const [meetingIdx, setMeetingIdx] = useState(0);
   return (
@@ -120,17 +138,17 @@ const App: React.FC<{}> = () => {
         <MeetingSelector
           meetings={meetings}
           selected={meetingIdx}
-          onSelect={idx => setMeetingIdx(idx)}
+          onSelect={(idx) => setMeetingIdx(idx)}
         />
       </Sidebar>
-      <Meeting 
-        meeting={meetings[meetingIdx]} 
+      <Meeting
+        meeting={meetings[meetingIdx]}
         onUpdate={(updatedMeeting) => {
           dispatch(updateMeeting(updatedMeeting));
         }}
       />
     </div>
   );
-}
+};
 
 export default App;
