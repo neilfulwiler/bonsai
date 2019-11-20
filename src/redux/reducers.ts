@@ -1,17 +1,21 @@
 import moment from 'moment';
-import { Meeting } from '../types';
+import { Meeting, User } from '../types';
 import {
-  LOGGED_IN, SET_MEETINGS, UPDATE_MEETING, Action,
+  ADD_MEETING, LOGGED_IN, LOGGED_OUT, SET_MEETINGS, UPDATE_MEETING, Action,
 } from './actions';
 
 
 export interface State {
   meetings: Meeting[],
-  user: any,
+  user?: User,
 }
 
 const initialState: State = {
   user: undefined,
+  meetings: [],
+};
+
+/*
   meetings: [
     {
       id: '1',
@@ -39,6 +43,7 @@ const initialState: State = {
     },
   ],
 };
+*/
 
 function replace<T>(ls: T[], pred: (t: T) => boolean, x: T): T[] {
   const idx = ls.findIndex(pred);
@@ -51,6 +56,17 @@ export default function rootReducer(state = initialState, action: Action): State
       return {
         ...state,
         user: action.user,
+      };
+    case LOGGED_OUT:
+      return {
+        ...state,
+        user: undefined,
+        meetings: [],
+      };
+    case ADD_MEETING:
+      return {
+        ...state,
+        meetings: state.meetings.concat([action.meeting]),
       };
     case SET_MEETINGS:
       return {

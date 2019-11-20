@@ -6,18 +6,40 @@ body,
   margin: 0;
 }
 
+
+#root {
+  font-family: "Bebas Neue", cursive;
+}
+
 .App {
-  font-family: sans-serif;
   text-align: center;
   display: flex;
   height: 100%;
   width: 100%;
   background-color: #607d8b;
-  font-family: "Bebas Neue", cursive;
+}
+
+.log-in {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  color: white;
+  cursor: pointer;
+}
+
+.log-in-button {
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.log-in-button:hover {
+  background-color: rgba(0, 0, 0, .2);
 }
 
 .sidebar {
   background-color: #bdbdbd;
+  width: 64px;
 }
 
 .meeting {
@@ -53,6 +75,14 @@ h1, h4 {
   padding: 12px;
   box-sizing: border-box;
   cursor: pointer;
+}
+
+.meetings-selector > li.add-meeting {
+  padding: 0px;
+}
+
+.meetings-selector > li.add-meeting:hover {
+  background-color: transparent;
 }
 
 .meetings-selector > li:hover {
@@ -119,5 +149,16 @@ h1, h4 {
   padding: 0px;
   font: inherit;
   caret-color: white;
+}
+
+.add-meeting > .meeting-list-add {
+  text-align: center;
+  transform: none;
+}
+
+.add-meeting > input {
+  width: 100%;
+  text-align: center;
+  caret-color: black;
 }
 

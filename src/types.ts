@@ -1,4 +1,4 @@
-import {Moment} from 'moment';
+import { Moment } from 'moment';
 
 
 export interface Note {
@@ -6,11 +6,16 @@ export interface Note {
   content: string[],
 }
 
-export interface Meeting {
-  id: string,
+export interface PreMeeting {
   uid: string,
   name: string,
   asksForYou: string[],
   asksForThem: string[],
   notes: Note[],
 }
+
+export interface User {
+  uid: string,
+}
+
+export type Meeting = PreMeeting & {id: string};
